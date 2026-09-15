@@ -66,4 +66,4 @@ Projeto desenvolvido por Isabela como projeto final do curso técnico em Inform�
 Projeto acadêmico, sem fins comerciais. Star Wars e Luke Skywalker são propriedades da Lucasfilm/Disney; este projeto é um trabalho de fã, feito exclusivamente para fins educacionais.
 
 ## 🔗 Link Do Projeto
-
+ - https://isaarosadev.github.io/projeto-MCinformatica-isa/
