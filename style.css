@@ -1,0 +1,740 @@
+
+
+:root{
+  /* cor base do vazio espacial — nunca preto puro */
+  --void-1: #0a0d16;
+  --void-2: #000000;
+  --void-3: #171c2b;
+
+  /* paleta narrativa */
+  --gold:      #e8b65a;  /* Tatooine / esperança */
+  --gold-dim:  #8a6a2f;
+  --force-blue:#6f9dc4;  /* mentor / a Força */
+  --force-dim: #3c5772;
+  --ember:     #c0432b;  /* ruínas / provações / vilão */
+  --ember-dim: #6e2718;
+  --dusk:      #8f7aa8;  /* incerteza / gancho final */
+
+  --parchment: #ede6d6;
+  --parchment-dim: #b9b2a2;
+  --ink: radial-gradient(ellipse at top, #0a0e27 0%, #05060f 60%, #000000 100%);;
+
+  --font-display: 'Spectral', Georgia, serif;
+  --font-body: "gill sans nova", "Gill Sans", "Gill Sans MT", Calibri, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --accent: var(--gold);
+}
+
+*{ box-sizing: border-box; margin:0; padding:0; }
+
+html{ scroll-behavior: smooth; }
+
+body{
+  background: var(--void-1);
+  color: var(--parchment);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* ============================================================
+   Campo de estrelas de fundo (fixo, atrás de tudo)
+   ============================================================ */
+/* ARTE: foto de campo de estrelas real, com leve escurecimento pra
+   não competir com o texto das seções por cima */
+.starfield{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.85)),
+    url('./assets/campo-estrelas.jpg');
+  background-repeat: no-repeat, repeat-y;
+  background-size: cover, 100% 2400px;
+  background-position: center top;
+  opacity: 1;
+}
+
+/* ============================================================
+   Chuva de meteoros (canvas, atrás do conteúdo, acima do
+   starfield estático) — disparada a cada início de capítulo
+   ============================================================ */
+.meteor-canvas{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .meteor-canvas{ display: none; }
+}
+
+/* ============================================================
+   Indicador fixo — as duas luas (elemento-assinatura)
+   ============================================================ */
+.suns-tracker{
+  position: fixed;
+  top: 50px;
+  right: 50px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.moons-wrap{
+  position: relative;
+  width: clamp(52px, 7vw, 70px);
+  height: clamp(26px, 3.5vw, 34px);
+}
+.moon-btn{
+  position: absolute;
+  top: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+.moon-btn:hover,
+.moon-btn:focus-visible{
+  transform: scale(1.14);
+}
+.moon-btn:focus-visible{
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+.moon-round{
+  display: block;
+  width: 60%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 10px 2px rgba(232,182,90,0.25);
+}
+.moon-crescent{
+  display: block;
+  width: 77%;
+  aspect-ratio: 40 / 26;
+  margin-top: 15%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(232,182,90,0.3));
+  opacity: 0.85;
+}
+.moon-a{ left: -2%; z-index: 2; top: -10px; width: 100%; height: 100%; }
+.moon-b{ left: 70%; height: 50%; width: 100%; top: -7px; }
+.tracker-label{
+  font-family: var(--font-mono);
+  font-size: 0.70rem;
+  letter-spacing: 0.15em;
+  color: white;
+  left: 45%; top: 30px;
+}
+
+/* ============================================================
+   Estrutura geral de cena
+   ============================================================ */
+main{ position: relative; z-index: 1; }
+
+.scene{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 6vw, 6rem);
+  padding: 6rem clamp(1.5rem, 6vw, 6rem);
+  position: relative;
+}
+
+.scene:nth-of-type(even){ flex-direction: row-reverse; }
+
+.scene-art{
+  position: relative;
+  width: min(38vw, 420px);
+  height: min(38vw, 420px);
+  flex-shrink: 0;
+}
+
+.scene-content{
+  max-width: 480px;
+}
+
+.eyebrow{
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.scene-content h2{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 3.4vw, 2.8rem);
+  line-height: 1.15;
+  margin-bottom: 1.2rem;
+  color: var(--parchment);
+}
+
+.scene-content p{
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--parchment-dim);
+  font-weight: 300;
+}
+
+/* Tonalidade por seção (data-mood) */
+.scene[data-mood="gold"]  { --accent: var(--gold); }
+.scene[data-mood="blue"]  { --accent: var(--force-blue); }
+.scene[data-mood="ember"] { --accent: var(--ember); }
+.scene[data-mood="dusk"]  { --accent: var(--dusk); }
+.scene[data-mood="flash"] { --accent: var(--parchment); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.scene-hero{
+  flex-direction: column;
+  text-align: center;
+  gap: 2rem;
+  padding-top: 0;
+}
+
+.art-hero{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* ARTE: foto de dunas como base do matte painting — em produção final,
+   trate no Photoshop (curvas quentes, vinheta, fusão com o céu dos sóis) */
+.hero-photo{
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(180deg, rgba(10,13,22,0.15) 0%, rgba(10,13,22,0.55) 55%, var(--void-1) 100%),
+    linear-gradient(0deg, rgba(232,182,90,0.18), transparent 40%),
+    url('./assets/twin-moons-journey.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center 65%;
+  filter: saturate(0.85) contrast(1.05);
+}
+
+/* Mesma composição do indicador fixo (crescente atrás, cheia na
+   frente, levemente sobreposta), só em escala maior para o Hero */
+.twin-suns{
+  position: absolute;
+  top: 6%;
+  left: 48%;
+  transform: translateX(-50%);
+  width: clamp(140px, 30vw, 224px);
+  height: clamp(68px, 14.5vw, 109px);
+}
+.sun-disc{
+  position: absolute;
+  top: 0;
+}
+.sun-disc-round{
+  width: 75.9%;
+  height: 156%;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 60px 16px rgba(232,182,90,0.35);
+  left: 40.2%;
+  z-index: 2;
+}
+.sun-disc-crescent{
+  width: 67%;
+  height: 168%;
+  top: 27.5%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(232,182,90,0.3));
+  opacity: 0.9;
+  left: 0;
+}
+
+.horizon{
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 45%;
+  background: linear-gradient(to top, var(--ink) 0%, #14100a 40%, transparent 100%);
+}
+.horizon::before{
+  content:"";
+  position: absolute;
+  top: -2px; left: 0; right: 0; height: 2px;
+  background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+}
+
+.hero-content{ position: relative; z-index: 2; }
+.hero-title{
+  font-family: var(--font-display);
+  font-weight: 450;
+  font-style: italic;
+  font-size: clamp(2.6rem, 7vw, 6.5rem);
+  line-height: 1.0;
+  color: var(--parchment);
+  margin: 0.7rem 0;
+}
+.hero-sub{
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.scroll-cue{
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--parchment-dim);
+}
+.scroll-line{
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse{
+  0%,100%{ opacity: 0.3; }
+  50%{ opacity: 1; }
+}
+
+/* ============================================================
+   CAPÍTULO 1 — Dunas e sóis (ARTE: Photoshop, matte painting)
+   ============================================================ */
+/* ARTE: foto de dunas real (mesmo material do hero, outro recorte) */
+.art-01{
+  background-image:
+    linear-gradient(160deg, rgba(36,26,16,0.35), rgba(10,13,22,0.65)),
+    url('./assets/luke-foto.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center 30%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ARTE: silhueta enviada (mesma imagem usada no Capítulo 4),
+   aqui em escala menor, como figura distante nas dunas */
+.art-lone-figure{
+  position: absolute;
+  bottom: 6%;
+  left: 38%;
+  width: 26%;
+  height: 40%;
+}
+.art-lone-figure img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  filter: brightness(0) opacity(0.9);
+}
+
+/* ============================================================
+   CAPÍTULO 2 — Holograma + droide (ARTE: Illustrator, vetor)
+   ============================================================ */
+.art-02{
+  background: radial-gradient(circle at 60% 60%, #0d1626, var(--void-2) 75%);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.art-hologram{
+  position: absolute;
+  background-image:
+    linear-gradient(180deg, rgba(111,157,196,0.6), rgba(111,157,196,0.05)),
+    url('./assets/r2d2-droide.jpeg');
+    object-fit: cover;
+    width: 100%; height: 110%;
+  filter: saturate(1.2) contrast(1.1);
+}
+
+
+/* ============================================================
+   CAPÍTULO 3 — Ruínas e fumaça (ARTE: Photoshop, textura/fumaça)
+   ============================================================ */
+/* ARTE: foto de cânion/rocha erodida, com tonalidade de cinzas (Photoshop:
+   dessaturar mais e adicionar fumaça real na composição final) */
+.art-03{
+  background-image:
+    linear-gradient(160deg, rgba(192,67,43,0.25), rgba(10,13,22,0.75)),
+    url('./assets/ruinas-canyon.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(0.5) contrast(1.0);
+  border-radius: 12px;
+  overflow: hidden;
+}
+/* ARTE: foto real da casa em Tatooine, cobrindo o quadro do capítulo */
+.art-home{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.55) contrast(1.1);
+  transform: translateY(var(--parallax-y, 0px)) scale(1.06);
+}
+.art-smoke{
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 40% 70%, rgba(192,67,43,0.25), transparent 60%),
+              radial-gradient(circle at 65% 50%, rgba(120,60,40,0.2), transparent 55%);
+  filter: blur(6px);
+  animation: drift 8s ease-in-out infinite alternate;
+}
+@keyframes drift{ 0%{ transform: translateX(0);} 100%{ transform: translateX(12px);} }
+.art-ruins{
+  position: absolute; bottom: 0; left: 0; right: 0; height: 25%;
+  background: linear-gradient(180deg, transparent, rgba(10,13,22,0.9));
+}
+/* ARTE: silhueta enviada, parada diante do que restou da fazenda */
+.art-figure-ruins{
+  position: absolute; bottom: 8%; left: 42%;
+  width: 22%; height: 42%;
+}
+.art-figure-ruins img{
+  width: 100%; height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  filter: brightness(0) drop-shadow(0 0 16px rgba(192,67,43,0.35));
+  opacity: 0.9;
+}
+
+/* ============================================================
+   CAPÍTULO 4 — Mentor e sabre de luz
+   ARTE: substituída pela ilustração enviada (silhueta com sabre
+   erguido, fundo removido) — se quiser trocar depois, é só apontar
+   o background-image para outro arquivo em /assets
+   ============================================================ */
+.art-04{
+  background: radial-gradient(circle at 50% 40%, #101a26, var(--void-2) 75%);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.art-luke{
+  position: absolute; bottom: -2%; left: 50%;
+  transform: translateX(-50%) translateY(var(--parallax-y, 0px)) scale(1.06);
+  width: 110%; height: 110%;
+  background-image:
+    linear-gradient(180deg, rgba(111,157,196,0.15), rgba(10,13,22,0.8)),
+    url('assets/obi-wan.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center;
+}
+
+/* ============================================================
+   CAPÍTULO 5 — Porto e hiperespaço (ARTE: Photoshop composição)
+   ============================================================ */
+/* ARTE: foto do vilarejo/porto como pano de fundo + recorte da nave
+   sobreposto (Photoshop: recortar a nave e compor com névoa/luz de doca) */
+.art-05{
+  background-image:
+    linear-gradient(180deg, rgba(10,13,22,0.35), rgba(10,13,22,0.8)),
+    url('./assets/han-solo-millenium-falcon.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center 40%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.art-han{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transform: translateY(var(--parallax-y, 0px)) scale(1.06);
+  background-image:
+    linear-gradient(180deg, rgba(10,13,22,0.15), rgba(10,13,22,0.8)),
+    url('assets/han-solo-millenium-falcon.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center 50%;
+}
+
+/* ============================================================
+   CAPÍTULO 6 — Corredor e alarme (ARTE: Illustrator perspectiva)
+   ============================================================ */
+.art-06{
+  background: #150707;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.art-starwars{
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%) translateY(var(--parallax-y, 0px)) scale(1.06);
+  width: 100%; height: 100%;
+  background-image:
+    linear-gradient(180deg, rgba(192,67,43,0.15), rgba(10,13,22,0.8)),
+    url('./assets/luke-nave.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center;
+}
+
+
+/* ============================================================
+   CAPÍTULO 7 — Estação/arma esférica (ARTE: Photoshop, escala)
+   ============================================================ */
+.art-07{
+  background: var(--void-1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.art-deathstar{
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%) translateY(var(--parallax-y, 0px)) scale(1.06);
+  width: 110%; height: 110%;
+  background-image:
+    linear-gradient(180deg, rgba(192,67,43,0.15), rgba(10,13,22,0.8)),
+    url('assets/estrela-da-morte.jpeg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center;
+}
+
+/* ============================================================
+   CAPÍTULO 8 — Trincheira e clímax (ARTE: Illustrator + Photoshop)
+   ============================================================ */
+.scene-climax .scene-art{ width: min(50vw, 560px); height: min(50vw, 480px); }
+.art-08{
+  background: #060809;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.art-force{
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%) translateY(var(--parallax-y, 0px)) scale(1.06);
+  width: 100%; height: 100%;
+  background-image:
+    linear-gradient(180deg, rgba(111,157,196,0.15), rgba(10,13,22,0.8)),
+    url('./assets/luke-yoda.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center;
+}
+
+
+/* ============================================================
+   CAPÍTULO 9 — Salão dourado (ARTE: Photoshop, luz quente)
+   ============================================================ */
+.art-09{
+  background: radial-gradient(circle at 50% 40%, #3a2c12, var(--void-2) 75%);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.art-heroluke{
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%) translateY(var(--parallax-y, 0px)) scale(1.06);
+  width: 100%; height: 100%;
+  background-image:
+    linear-gradient(180deg, rgba(232,182,90,0.15), rgba(10,13,22,0.8)),
+    url('assets/luke-1.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center;
+}
+
+/* ============================================================
+   CAPÍTULO 10 — Silhueta encapuzada (ARTE: Illustrator, mistério)
+   ============================================================ */
+.art-10{
+  background: radial-gradient(circle at 60% 40%, #171025, var(--void-2) 75%);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.art-darth{
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%) translateY(var(--parallax-y, 0px)) scale(1.06);
+  width: 100%; height: 100%;
+  background-image:
+    linear-gradient(180deg, rgba(143,122,168,0.15), rgba(10,13,22,0.8)),
+    url('./assets/luke-darth.jpg');
+    object-fit: cover;
+  background-size: cover;
+  background-position: center;
+}
+.continua{
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--dusk);
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.site-footer{
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 3rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--parchment-dim);
+  letter-spacing: 0.1em;
+}
+.back-to-top{
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.6rem;
+  padding: 0.7rem 1.4rem;
+  background: transparent;
+  border: 1px solid rgba(232,182,90,0.35);
+  border-radius: 999px;
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+.back-to-top span{
+  font-size: 0.95rem;
+  transform: translateY(-1px);
+}
+.back-to-top:hover,
+.back-to-top:focus-visible{
+  background: rgba(203, 160, 79, 0.1);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+.back-to-top:focus-visible{
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   Animações ao rolar — controladas pelo index.js
+   (revelação suave via classes will-reveal/is-visible +
+   parallax via variável --parallax-y, atualizada no JS)
+   ============================================================ */
+.will-reveal{
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.will-reveal.is-visible{
+  opacity: 1;
+  transform: translateY(0);
+}
+/* o wrapper de arte de cada capítulo ganha um leve zoom junto do fade */
+.scene-art.will-reveal{ transform: translateY(0) scale(1.05); }
+.scene-art.will-reveal.is-visible{ transform: translateY(0) scale(1); }
+.scene-art{ transition: opacity 0.9s ease, transform 0.9s ease; }
+
+@supports (animation-timeline: view()) {
+  /* parallax sutil nas fotos de fundo (div com background-image)
+     enquanto o capítulo passa pela tela — enriquece o parallax
+     via --parallax-y que o index.js já aplica nas imagens <img> */
+  .art-01, .art-03, .art-09{
+    animation: bg-drift linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+  @keyframes bg-drift{
+    from{ background-position-y: 20%; }
+    to{ background-position-y: 55%; }
+  }
+}
+
+/* ============================================================
+   Responsivo
+   ============================================================ */
+
+/* Tablets e telas médias */
+@media (max-width: 1024px){
+  .scene{
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+  }
+  .scene-art{ width: min(42vw, 380px); height: min(42vw, 380px); }
+}
+
+/* Tablets retrato / celulares grandes — layout empilha */
+@media (max-width: 860px){
+  .scene, .scene:nth-of-type(even){
+    flex-direction: column;
+    text-align: center;
+    padding: 5rem 1.5rem;
+    gap: 2.5rem;
+  }
+  .scene-art{ width: 70vw; height: 70vw; max-width: 320px; max-height: 320px; }
+  .scene-climax .scene-art{ width: 78vw; height: 78vw; max-width: 340px; max-height: 340px; }
+  .scene-content{ max-width: 100%; }
+
+  .suns-tracker{ top: 1.2rem; right: 1.2rem; }
+
+  .twin-suns{ top: 8%; }
+  .figure-silhouette{ bottom: 26%; }
+}
+
+/* Celulares */
+@media (max-width: 480px){
+  .scene{ padding: 4rem 1.25rem; }
+  .scene-content h2{ font-size: clamp(1.5rem, 6vw, 2rem); }
+  .scene-content p{ font-size: 0.95rem; line-height: 1.6; }
+  .eyebrow{ font-size: 0.62rem; letter-spacing: 0.15em; }
+
+  .scene-art{ width: 82vw; height: 82vw; }
+  .scene-climax .scene-art{ width: 86vw; height: 86vw; }
+
+  .hero-title{ font-size: clamp(2.1rem, 11vw, 3rem); }
+  .hero-sub{ font-size: 0.72rem; }
+  .twin-suns{ top: 10%; width: clamp(120px, 42vw, 160px); }
+  .figure-silhouette{ bottom: 24%; }
+
+  .suns-tracker{ top: 1rem; right: 1rem; gap: 0.3rem; }
+  .tracker-label{ font-size: 0.58rem; }
+
+  .back-to-top{
+    padding: 0.6rem 1.1rem;
+    font-size: 0.62rem;
+  }
+  .site-footer{ padding: 2.5rem 1rem; }
+}
+
+/* Celulas bem pequenos */
+@media (max-width: 550px){
+  .hero-title{ font-size: 1.9rem; }
+  .scene-art{ width: 88vw; height: 88vw; }
+  .suns-tracker{ transform: scale(0.9); transform-origin: top right; }
+}
+
+/* Telas bem largas — evita que o hero fique "vazio" demais */
+@media (min-width: 1600px){
+  .scene{ padding: 6rem clamp(4rem, 10vw, 10rem); }
+}
+
+/* Orientação paisagem em celulares (altura curta) */
+@media (max-height: 480px) and (orientation: landscape){
+  .scene{ min-height: auto; padding: 3rem 2rem; }
+  .scene-hero{ min-height: 100vh; }
+  .twin-suns{ top: 4%; }
+  .figure-silhouette{ bottom: 18%; }
+}

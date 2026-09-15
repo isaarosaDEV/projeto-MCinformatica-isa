@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0d16">
+<title>Duas Luas, Um Destino — A Jornada</title>
+<link rel="icon" type="image/png" href="./assets/lua-01.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+ <!-- Indicador fixo: as duas luas -->
+  <div class="suns-tracker">
+    <div class="moons-wrap">
+      <button type="button" class="moon-btn moon-a" id="prevChapterBtn" aria-label="Capítulo anterior">
+        <img class="moon moon-crescent" src="./assets/lua-crescente.png" alt="">
+      </button>
+      <button type="button" class="moon-btn moon-b" id="nextChapterBtn" aria-label="Próximo capítulo">
+        <img class="moon moon-round" src="assets/lua-01.png" alt="">
+      </button>
+    </div>
+    <span class="tracker-label">CAP. <span id="chapterNum">00</span> / 10</span>
+  </div>
+
+  <div class="starfield" aria-hidden="true"></div>
+  <canvas class="meteor-canvas" id="meteorCanvas" aria-hidden="true"></canvas>
+
+  <main>
+
+    <!-- silhueta luke -->
+    <section class="scene scene-hero" data-mood="gold" data-chapter="0">
+      <div class="scene-art art-hero">
+        <div class="hero-photo"></div>
+      
+        <div class="horizon"></div>
+
+      </div>
+      <div class="hero-content">
+        <p class="eyebrow">uma história sobre olhar o horizonte</p>
+        <h1 class="hero-title">Duas Luas,<br>Um Destino</h1>
+        <p class="hero-sub">A jornada de Luke Skywalker</p>
+        <div class="scroll-cue">
+          <span>role para começar</span>
+          <div class="scroll-line"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 1 — ABERTURA / HOOK -->
+    <section class="scene" data-mood="gold" data-chapter="1">
+      <div class="scene-art art-01">
+        <div class="art-suns">
+        </div>
+        <div class="art-dunes"></div>
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 01 — o mundo comum</span>
+        <h2>O Horizonte Duplo</h2>
+        <p>Em um planeta de dois sóis, nas bordas esquecidas da galáxia, um jovem sonha com algo maior do que a fazenda onde cresceu.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 2 — O CHAMADO -->
+    <section class="scene" data-mood="blue" data-chapter="2">
+      <div class="scene-art art-02">
+        <img class="art-hologram" src="./assets/r2d2-droide.jpeg" alt="">
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 02 — o chamado</span>
+        <h2>Uma Mensagem Escondida</h2>
+        <p>Um droide errante carrega um segredo: um pedido de socorro de uma princesa, escondido dentro de sua memória. O jovem não sabia, mas aquele era o primeiro passo de uma jornada que mudaria sua vida.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 3 — PONTO SEM VOLTA -->
+    <section class="scene" data-mood="ember" data-chapter="3">
+      <div class="scene-art art-03">
+        <img class="art-home" src="./assets/tatooine-luke-house.jpg" alt="">
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 03 — o ponto sem volta</span>
+        <h2>Cinzas</h2>
+        <p>Quando retorna para casa, encontra apenas cinzas. Não há mais nada que o prenda àquele lugar. A partir daqui, só existe um caminho: seguir em frente.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 4 — O MENTOR -->
+    <section class="scene" data-mood="blue" data-chapter="4">
+      <div class="scene-art art-04">
+        <img class="art-luke" src="./assets/obi-wan.jpg" alt="">
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 04 — o mentor</span>
+        <h2>A Energia Que Conecta Tudo</h2>
+        <p>Um velho eremita revela que conheceu seu pai — e que existe uma energia que conecta todos os seres vivos. Ele oferece ensinar o jovem a senti-la, a confiar nela.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 5 — CRUZANDO O LIMIAR -->
+    <section class="scene" data-mood="gold" data-chapter="5">
+      <div class="scene-art art-05">
+          <img class="art-han" src="./assets/han-solo-millenium-falcon.jpg" alt="">
+        <div class="art-hyperspace"></div>
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 05 — cruzando o limiar</span>
+        <h2>Sem Volta Atrás</h2>
+        <p>Entre criaturas estranhas e contrabandistas, ele encontra uma nave e um piloto disposto a arriscar tudo. Não há mais como voltar atrás — a galáxia inteira se abre diante dele.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 6 — PROVAÇÕES -->
+    <section class="scene" data-mood="ember" data-chapter="6">
+      <div class="scene-art art-06">
+        <img class="art-starwars" src="./assets/luke-nave.jpg" alt="">
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 06 — provações</span>
+        <h2>O Que Resta da Inocência</h2>
+        <p>Resgates arriscados, fugas por pouco, perdas dolorosas. Cada provação tira um pouco da inocência do jovem e o aproxima de quem ele precisa se tornar.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 7 — O ABISMO -->
+    <section class="scene" data-mood="ember" data-chapter="7">
+      <div class="scene-art art-07">
+        <img class="art-deathstar" src="./assets/estrela-da-morte.jpeg" alt="">
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 07 — o abismo</span>
+        <h2>Maior Que a Lógica</h2>
+        <p>Diante da arma mais poderosa já construída, resta apenas uma chance. Não há mais tempo para hesitar — é preciso confiar em algo maior que a lógica ou a mira de uma máquina.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 8 — O CLÍMAX -->
+    <section class="scene scene-climax" data-mood="flash" data-chapter="8">
+      <div class="scene-art art-08">
+        <img class="art-force" src="./assets/luke-yoda.jpg" alt="">
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 08 — o clímax</span>
+        <h2>O Impossível Se Torna Possível</h2>
+        <p>Ele desliga os instrumentos. Fecha os olhos. E confia na voz que o guia por dentro.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 9 — RETORNO TRANSFORMADO -->
+    <section class="scene" data-mood="gold" data-chapter="9">
+      <div class="scene-art art-09">
+          <img class="art-heroluke" src="./assets/luke-1.jpg" alt="">
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 09 — retorno transformado</span>
+        <h2>De Garoto a Herói</h2>
+        <p>O garoto que sonhava com o horizonte agora é reconhecido como herói. Mas essa é apenas a primeira etapa de uma jornada muito mais longa.</p>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 10 — GANCHO -->
+    <section class="scene scene-hook" data-mood="dusk" data-chapter="10">
+      <div class="scene-art art-10">
+          <img class="art-darth" src="./assets/luke-darth.jpg" alt="">
+      </div>
+      <div class="scene-content">
+        <span class="eyebrow">capítulo 10 — o próximo passo</span>
+        <h2>A Verdade Sobre Quem Ele É</h2>
+        <p>Ele descobriria, mais tarde, que as maiores batalhas não acontecem apenas lá fora — e que a verdade sobre quem ele é pode ser mais difícil de enfrentar do que qualquer inimigo.</p>
+        <span class="continua">continua...</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <button type="button" id="backToTopBtn" class="back-to-top">
+      <span aria-hidden="true">↑</span> Voltar ao início da história
+    </button>
+    <p>Projeto Final · MC Informática — Scroll Storytelling</p>
+  </footer>
+
+  <script src="index.js"></script>
+</body>
+</html>
